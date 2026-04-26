@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disk Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="topbar-btn" id="admin-entry" type="button" aria-label="Открыть админ-панель">+</button>
+      <button class="topbar-btn album-btn" id="album-open-btn" type="button">Альбом</button>
+    </header>
+
+    <main class="main-view">
+      <section class="search-hero">
+        <p class="hero-kicker">Disk Search</p>
+        <h1>Поиск фото по ID</h1>
+        <form class="search-box" id="search-form">
+          <input
+            id="search-id"
+            name="search-id"
+            class="search-input"
+            type="text"
+            inputmode="numeric"
+            maxlength="3"
+            placeholder="Введи ID"
+            autocomplete="off"
+          >
+          <button class="search-submit" type="submit">Поиск</button>
+        </form>
+        <p class="hero-note" id="status-box">Введи ID, найди фото и открой его в просмотре.</p>
+      </section>
+
+      <section class="result-shell" id="result-shell">
+        <div class="result-empty" id="result-empty">
+          <p>Найденное фото появится здесь.</p>
+        </div>
+
+        <article class="result-card hidden" id="result-card">
+          <div class="result-preview-wrap">
+            <img id="result-image" alt="Найденное изображение">
+            <div class="result-overlay">
+              <button class="open-viewer-btn" id="open-viewer-btn" type="button">Открыть просмотр</button>
+            </div>
+          </div>
+
+          <div class="result-info">
+            <div>
+              <span class="result-badge" id="viewer-badge">ID 000</span>
+              <h2 id="result-title">Изображение найдено</h2>
+            </div>
+            <div class="result-actions">
+              <button class="tool-btn wide" id="save-album-btn" type="button" disabled>Сохранить</button>
+              <button class="tool-btn wide" id="download-btn" type="button" disabled>Скачать</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal hidden" id="viewer-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-viewer="true"></div>
+    <div class="viewer-modal-card">
+      <div class="viewer-modal-top">
+        <div class="viewer-meta">
+          <span class="viewer-badge large" id="modal-viewer-badge">Просмотр</span>
+          <p class="viewer-help" id="viewer-help">Колесо мыши приближает к точке наведения. Картинку можно двигать.</p>
+        </div>
+        <div class="viewer-modal-actions">
+          <button class="tool-btn" id="zoom-out-btn" type="button" disabled>-</button>
+          <button class="tool-btn" id="zoom-in-btn" type="button" disabled>+</button>
+          <button class="tool-btn wide" id="close-viewer-btn" type="button" aria-label="Закрыть">Закрыть</button>
+        </div>
+      </div>
+      <div class="viewer-stage fullscreen" id="viewer-stage">
+        <div class="viewer-canvas" id="viewer-canvas">
+          <img id="preview-image" alt="Полный просмотр изображения">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="album-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-album="true"></div>
+    <div class="modal-card side-card">
+      <div class="modal-head">
+        <h2>Альбом</h2>
+        <div class="modal-actions">
+          <button class="tool-btn wide" id="clear-album-btn" type="button">Очистить</button>
+          <button class="tool-btn wide" id="close-album-btn" type="button" aria-label="Закрыть">Закрыть</button>
+        </div>
+      </div>
+      <div class="album-grid" id="album-grid"></div>
+      <div class="album-empty" id="album-empty">Альбом пока пуст.</div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="admin-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-admin="true"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Админ-панель</h2>
+        <button class="tool-btn wide" id="close-admin-btn" type="button" aria-label="Закрыть">Закрыть</button>
+      </div>
+
+      <div class="admin-lock" id="admin-lock">
+        <label class="input-label" for="admin-code">Код доступа</label>
+        <div class="admin-lock-row">
+          <input
+            id="admin-code"
+            class="search-input"
+            type="password"
+            inputmode="numeric"
+            maxlength="3"
+            autocomplete="off"
+          >
+          <button class="search-submit slim" id="unlock-admin-btn" type="button">Войти</button>
+        </div>
+      </div>
+
+      <div class="admin-panel hidden" id="admin-panel">
+        <div class="admin-column">
+          <label class="input-label" for="image-url">Ссылка на изображение</label>
+          <input
+            id="image-url"
+            class="search-input"
+            type="url"
+            placeholder="https://..."
+          >
+          <div class="admin-actions">
+            <button class="tool-btn wide" id="preview-link-btn" type="button">Проверить</button>
+            <button class="search-submit slim" id="add-image-btn" type="button">Добавить</button>
+          </div>
+
+          <div class="admin-preview">
+            <img id="admin-preview-image" alt="Предпросмотр ссылки">
+            <div class="empty-state small" id="admin-preview-empty">
+              <p>Вставь ссылку и проверь превью.</p>
+            </div>
+          </div>
+
+          <div class="admin-status" id="admin-status">Ожидание ссылки.</div>
+        </div>
+
+        <div class="admin-column">
+          <div class="modal-head compact-head">
+            <h3>База</h3>
+            <button class="tool-btn wide" id="refresh-list-btn" type="button">Обновить</button>
+          </div>
+          <div class="admin-list" id="admin-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
